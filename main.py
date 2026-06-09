@@ -1,13 +1,19 @@
 from fastapi import FastAPI
-import book.models
-# import account.models
-from database import engine
+from database import SessionLocal
+from book.router import router as book_router
 
 app = FastAPI()
 
-book.models.Base.metadata.create_all(bind=engine)
-# account.models.Base.metadata.create_all(bind=engine)
+app.include_router(book_router, prefix="/book")
 
-@app.get("/")
-def test():
-    return {"Message": "Main page"}
+@book_router.get("/")
+def index():
+    return {"message": "Main"}
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
